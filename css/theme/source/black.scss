@@ -12,7 +12,8 @@
 
 
 // Include theme-specific fonts
-@import url(../../lib/font/source-sans-pro/source-sans-pro.css);
+@import url('https://fonts.googleapis.com/css?family=Lato|Open+Sans&display=swap');
+//@import url(../../lib/font/source-sans-pro/source-sans-pro.css);
 //@import url('https://fonts.googleapis.com/css?family=Vollkorn:400,400i,700');
 //@import url('https://fonts.googleapis.com/css?family=Archivo');
 
@@ -24,8 +25,8 @@ $mainColor: #0D2C40;
 $headingColor: #02D35F;
 
 $mainFontSize: 42px;
-$mainFont: 'Source Sans Pro', Helvetica, sans-serif;
-$headingFont: 'Source Sans Pro', Helvetica, sans-serif;
+$mainFont: 'Open Sans', Helvetica, sans-serif;
+$headingFont: 'Lato', Helvetica, sans-serif;
 $headingTextShadow: none;
 $headingLetterSpacing: normal;
 $headingTextTransform: none;
@@ -89,3 +90,4 @@ section.has-light-background {
     font-size: 0.75em;
     color: #02D35F;
 }
+

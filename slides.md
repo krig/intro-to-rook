@@ -1,264 +1,394 @@
+# Introducing
+# Rook
 
-# Rotlösa Behållare
+<img src="img/index-hero.svg" class="plain" style="max-height:400px;">
 
-Note:
-Jag ska prata om rotlösa behållare, eller
-
----
-
-
-# Rootless Containers
+<div style="font-size:0.5em;">Kristoffer Gr&ouml;nlund &lt;kgronlund@suse.com&gt;</div>
 
 Note:
-Rootless containers som jag skulle säga. Det finns ingen bra svensk
-översättning på det där, så det kommer bli en del svengelska.
+About me; Work for SUSE; Storage team on rook
 
 ---
 
-<img src="img/suse.svg" class="plain">
-
-Kristoffer Gr&ouml;nlund<br>kgronlund@suse.com
-
-Note:
-Mitt namn är Kristoffer Grönlund, jag jobbar på SUSE som är en
-Linuxdistributör, jobbar hemifrån här i Sverige, SUSE är ett tyskt
-företag, vi söker folk och är öppna för remote =)
-
----
-
-<img src="img/disclaimer.gif" class="plain" style="max-height:600px;">
-
-Note:
-Disclaimer, inte expert på containers.
-
----
-
-<!-- .slide: data-background="#ececee" -->
-
-<img src="img/logo-500px.png" class="plain">
-
-kodsnack.se
-
-Note:
-Jag vill även passa på att nämna kodsnack som jag gör med några
-kompisar, det är en podcast om programmering på svenska, nytt avsnitt
-varje vecka.
-
----
-
-<img src="img/chameleon.svg" class="plain" style="max-height:400px;">
-
-opensuse.org
-
-Note:
-Tänkte också nämna openSUSE, SUSE släpper en helt öppen och fri
-version av OSet, faktum är att vi utvecklar openSUSE först, allt nytt
-hamnar där först. Det är en rullande distro precis som Arch, fast vi
-har stabila releaser som motsvarar versionerna med betald support
-också.
-
----
-
-* Introduktion
-* Containers..?
-* Rootless containers
-  * Varför
-  * Hur
-
----
-
-<!-- .slide: data-background-image="img/containers3.jpg" -->
-
-Note:
-OK, nog med reklam, här är det jag egentligen ska prata
-om. Containrar. För att få ämnet som jag tänker komma till begripligt
-så måste jag börja med att förklara vad en container är. Är det någon
-som i stora drag kan förklara vad en container är? Hur man förklarar
-beror lite på hur man ser på dem.
-
----
-
-<!-- .slide: data-background-image="img/boxes.jpg" -->
-
-Note:
-Om vi med container menar att köra en process i en speciell miljö
-lokalt på en maskin så ser de lite mer ut som de här lådorna, där man
-stoppar sin process i en unik låda, inreder den precis som processen
-vill ha det och ger den titthål till precis det den behöver se av
-omvärlden. Vi börjar där.
-
----
-
-# Kärnan
-
-Note:
-Containers bygger på ett par olika features i Linux-kerneln. I andra
-operativsystem så ser det säkert lite annorlunda ut, men den generalla
-iden är ungefär densamma.
-
----
-
-# Namespaces
-
-Isolerad vy av systemresurser
+Ceph &bull; <b>Rook</b> &bull; Kubernetes
 
 Note:
 
-Namespaces används för att ge processen en unik bild av olika
-systemresurser, t.ex. vilken process-id den själv har. 
+Going to talk about three different things: Ceph, Rook and Kubernetes.
+Anyone unfamiliar with all of these? Won't be able to dig deep.
 
 ---
 
-* Mount (mnt)
-* Process ID (pid)
-* Network (net)
-* Interprocess communication (ipc)
-* **User ID (user)**
-* ...
-
----
-
-# CGroups
-
-Begränsad tillgång till systemresurser
+# Software Defined Storage
 
 Note:
 
-cgroups används för att ge processer begränsad tillgång till
-delade fysiska resurser, t.ex. ge en process begränsad CPU-tid eller
-begränsa hur mycket minne den får använda.
+Ceph is a Software Defined Storage solution.
+Contrasted against buying a storage array from a vendor.
+Pros: Cheaper, more flexible, adaptible, cloud compatible.
+Cons: More complexity to handle.
 
 ---
 
-``` sh
-# Example: set the maximum memory limit to 100MB
-mkdir /sys/fs/cgroup/memory/<CGRP>
-echo 100000000 > /sys/fs/cgroup/memory/<CGRP>/memory.limit_in_bytes
-echo <PID> > /sys/fs/cgroup/memory/<CGRP>/cgroup.procs
+<img src="img/ceph.png" class="plain" style="max-height:550px;float:left;">
+
+&nbsp;
+
+&nbsp;
+
+* Open source
+* Distributed
+* Massively scalable
+* Self healing
+* Runs on commodity hardware / public cloud
+
+Note:
+
+Ceph
+* Open source
+* Distributed
+* Massively scalable
+* Self healing
+* Runs on commodity hardware / public cloud
+
+
+---
+
+<img src="img/ses.png" class="plain" style="max-height:550px;">
+
+Note:
+
+# Flexible API options
+* Object (`radosgw`)
+  * REST
+  * S3
+  * SWIFT
+* Block (`rbd`)
+* File (`cephfs`)
+
+---
+
+### No Single Point Of Failure
+
+<img src="img/ceph-architecture.png" class="plain" style="max-height:500px;">
+
+Note:
+
+Architecture:
+  * CRUSH algorithm - automatic balancing
+  * OSD: Manages a single device
+  * MON: Communication coordinators
+  * MDS: Metadata for the file systems
+  * RGW: RADOS Gateway, REST / S3 / ...
+  * MGR: Manager, dashboards
+
+---
+
+<img src="img/dashboard.png" class="plain" style="max-height:700px">
+
+Note:
+
+Comes with user-friendly tools,
+management dashboard, prometheus
+integration, etc.
+
+---
+
+# Kubernetes
+
+<img src="img/kubernetes.svg" class="plain" style="max-height:500px;">
+
+Note:
+
+Container orchestration platform.
+Automate application deployment, scaling and management.
+
+Handles service discovery, load balancing, rollouts and rollbacks.
+
+Is self-healing.
+
+Handles secrets and configuration management.
+
+---
+
+# Concepts
+
+* Pod
+* Service
+* Namespace
+* Controller
+* Volume
+* Custom Resource Definition (CRD)
+
+Note:
+
+Pod = basic execution unit of an app. One or more containers with resources like
+storage, networking, runtime options.
+
+Service = interface to an app, DNS name for a set of pods plus load balancing.
+
+Namespace = organize the cluster.
+
+Controllers create and manage replicated sets of Pods (DaemonSet, ReplicaSet).
+
+Volume = Directory accessible by a Pod.
+
+CRD = An interface for extending Kubernetes with new types.
+
+---
+
+# Kubernetes Storage Story
+
+1. Volume Plugins
+
+2. FlexVolume *
+
+3. CSI *
+
+Note:
+
+how does storage work in Kubernetes? How can services access and store data?
+Not going to talk about using databases here.
+Kubernetes designed for stateless services.
+Volume plugins provide interface to storage somewhere else.
+Kubernetes assumes someone else sorts out storage.
+
+---
+
+<img src="img/disclaimer.gif" class="plain" style="max-height:400px;float:right;">
+
+# Challenges
+#### External Storage / Cloud Vendor
+
+* Vendor lock-in
+* Portability
+* Connectivity
+* Deployment
+* Administration
+
+Note:
+You might say just use EBS or whatever storage the cloud vendor provides.
+There are some issues with that though.
+A big one (surprisingly) is cost.
+Having storage "somewhere else" means dealing with connectivity between storage
+and the applications. Deployment burden. Who manages this thing?
+
+---
+
+<img src="img/index-what-is-rook.svg" class="plain" style="height:600px;">
+
+Note:
+
+This is where Rook comes in.
+Storage Orchestration Framework.
+Extends Kubernetes with new primitives.
+Configures and manages storage provides in Kubernetes,
+and exposes storage to pods.
+
+---
+
+<img src="img/provision.svg" class="plain" style="float:right;height:450px;">
+
+### Multiple storage providers
+
+* **Ceph**
+* **EdgeFS**
+* CockroachDB
+* Cassandra
+* NFS
+* Yugabyte DB
+* Apache Ozone
+
+Note:
+Rook is a framework for multiple storage systems.
+Ceph and EdgeFS are stable, the rest are either
+in beta or alpha state as of rook 1.2. 
+
+---
+
+# Rook Operator
+
+* Bootstrap and Monitor
+* Manages Ceph
+* Creates Agents
+
+Note:
+* Bootstraps and monitors the storage cluster
+* Manages Ceph MONs and a DaemonSet for OSDs
+* CRDs for pools, object stores and file systems
+* Creates Rook agents
+
+---
+
+# Rook Agents
+
+* Runs on all nodes
+* Handles storage operations
+
+Note:
+* Deployed on every Kubernetes node
+* Handles storage operations
+  * Attach network storage
+  * Mount volumes
+  * Format file systems
+
+---
+
+* Persistent Volume (PV)
+* Persistent Volume Claim (PVC)
+* Storage Classes
+
+Note:
+
+* **Persistent Volume (PV)**
+  * Actual slice of storage
+  * Manually provisioned by administrator, or
+  * Dynamically provisioned by Storage Classes
+  * Independent lifetime from Pods
+
+* **Persistent Volume Claim (PVC)**
+  * Request for storage
+  * Consumes PV resources
+  * Can request specific size, access mode
+  
+* **Storage Classes**
+  * Defines types of storage available
+  * Enable dynamic storage provisioning
+  * Cluster creates and assigns PVs to PVCs
+
+---
+
+<img src="img/rook-architecture.png" class="plain" style="height:600px;">
+
+Note:
+
+Architecture overview.
+Important parts have blue background:
+Rook manages the storage provider (ceph)
+Exposes storage to pods.
+
+---
+
+# Use Case: Pure Ceph Cluster
+
+* Dedicated K8S cluster for running Ceph
+* Can serve multiple K8S application clusters
+* Not common
+
+---
+
+# Use Case: Shared Cluster
+
+* One partitioned K8S cluster
+* Dedicated storage nodes for Ceph
+* Dedicated compute nodes for Apps
+
+---
+
+# Use Case: Unified Cluster
+
+* All nodes run both Ceph and workloads
+* Most common
+
+---
+
+# Use Case: External Cluster
+
+* Rook as interface to external Ceph cluster
+* Added in Rook v1.1
+
+---
+
+### Try it out
+
+<asciinema-player id="terminal-player" src="/js/ceph.cast" cols="61" rows="18"
+theme="monokai" font-size="big"></asciinema-player>
+
+---
+
+<pre class="stretch">
+<code data-trim class="hljs yaml">
+# cat object.yaml
+apiVersion: ceph.rook.io/v1
+kind: CephObjectStore
+metadata:
+  name: my-store
+  namespace: rook-ceph
+spec:
+  metadataPool:
+    failureDomain: host
+    replicated:
+      size: 3
+  dataPool:
+    failureDomain: host
+    erasureCoded:
+      dataChunks: 2
+      codingChunks: 1
+  preservePoolsOnDelete: true
+  gateway:
+    type: s3
+    sslCertificateRef:
+    port: 80
+    securePort:
+    instances: 1
+</code>
+</pre>
+
+Note:
+Create an object store
+
+---
+
+```sh
+# Create the object store
+kubectl create -f object.yaml
+
+# To confirm the object store is configured, wait for the rgw pod to start
+kubectl -n rook-ceph get pod -l app=rook-ceph-rgw
 ```
 
 ---
 
-<!-- .slide: data-background-image="img/ship.jpg" -->
+rook.io
 
 Note:
 
-Det andra sättet att se på containers är det som i alla fall jag
-tänker på först, typ dockercontainer. Att man kan packa ihop allt en
-process behöver till ett paket, och nu kan man köra processen på olika
-system så länge de har docker.
+There's a lot more to it, for more info and docs see rook.io
 
 ---
 
-# Manifest
+# Conclusion
 
-Note:
-Här är en container i princip ett packmanifest.
-
-Manifestet beskriver vad som behövs för att starta och köra processen,
-och hur processen ska startas.
-
----
-
-# Runtime
-
-Note:
-Allt det här sköts av en container runtime. En runtime tar en
-container, packar upp innehållet, läser manifestet, sätter upp
-namespace, filsystem och cgroups och startar processen.
-
----
-
-<img src="img/oci.png" class="plain">
-
-runc
-
-Note:
-Open Container Initiative är en öppen standard för
-containerformat och runtimes. Donerat av Docker.
-
----
-
-# Rootless
+<img src="img/opensource.svg" class="plain" style="height:450px;">
 
 Note:
 
-Sådär, nu när vi vet vad en container är så kan vi prata om
-rotlöshet. Äntligen.
+why use Rook? If you need Storage and are running Kubernetes,
+there really isn't anything else that compares.
+
+Provides Storage within Kubernetes. Consistent interface wherever Kubernetes
+runs, different cloud providers, on premise, etc.
+
+Version 1.2.1 released recently. Ceph backend most mature.
+Ceph itself is proven technology, running in production since 2012.
+
+Avoid lock-in, gain scalability, flexibility.
 
 ---
 
-Att göra det möjligt för en opriviligerad användare att
+<img src="img/suse.svg" class="plain" style="height:300px;" >
 
-* Skapa och köra containerprocesser, och
-* Skapa och distribuera containerpaket till andra.
+**suse.com/storage**
 
----
+<hr>
 
-# Varför rootless?
-
----
-
-## Python 3 vs. Python 2
-
----
-
-## Extra säkerhetslager
-
----
-
-blog.jessfraz.com/post/ultimate-linux-on-the-desktop
-
----
-
-# Hur
-
----
-
-namespaces / <del>cgroups</del>
-
----
-
-# user namespaces
-
-Låt processen i containern tro att den är PID 1. (!)
-
----
-
-## `runc` emulerar otillåtna systemanrop
-
-`setgroups`, `chown`, ...
-
----
-
-## Skapa / distribuera containers
-
-umoci
-
----
-
-# Klart?
-
-rootlesscontaine.rs
-
-Rootless Containers with runC - Aleksa Sarai, SUSE
-
-The Route to Rootless Containers - Claudia Beresford & Ed King, Pivotal
+* SUSE Storage 6
+  * Technology Preview (feedback welcome)
+* SUSE Storage 7
+  * Rook on CaaSP as supported stack
 
 Note:
 
-Inte riktigt. Mycket kvar att göra, t.ex. cgroups. Läs mer på rootlesscontaine.rs.
-
----
-
-<!-- .slide: data-background="#02D35F" -->
-
-SUSE Containers as a Service Platform
-
-SUSE Cloud Application Platform
-
-SUSE OpenStack Cloud
-
-SUSE Linux High Availability
-
-**suse.com/careers**
+For a supported option, SUSE has a tech preview out now, and in
+the next release SES will be fully supported on CaaSP, the SUSE K8S
+distribution.
