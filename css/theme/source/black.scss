@@ -12,10 +12,11 @@
 
 
 // Include theme-specific fonts
-@import url('https://fonts.googleapis.com/css?family=Lato|Open+Sans&display=swap');
+//@import url('https://fonts.googleapis.com/css?family=Lato|Open+Sans&display=swap');
 //@import url(../../lib/font/source-sans-pro/source-sans-pro.css);
 //@import url('https://fonts.googleapis.com/css?family=Vollkorn:400,400i,700');
 //@import url('https://fonts.googleapis.com/css?family=Archivo');
+@import url('https://fonts.googleapis.com/css2?family=Dosis:wght@600&display=swap');
 
 
 // Override theme settings (see ../template/settings.scss)
@@ -25,8 +26,8 @@ $mainColor: #0D2C40;
 $headingColor: #02D35F;
 
 $mainFontSize: 42px;
-$mainFont: 'Open Sans', Helvetica, sans-serif;
-$headingFont: 'Lato', Helvetica, sans-serif;
+$mainFont: Dosis, Archivo, 'Open Sans', Helvetica, sans-serif;
+$headingFont: Dosis, Archivo, 'Lato', Helvetica, sans-serif;
 $headingTextShadow: none;
 $headingLetterSpacing: normal;
 $headingTextTransform: none;

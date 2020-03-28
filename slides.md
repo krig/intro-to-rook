@@ -3,7 +3,7 @@
 
 <img src="img/index-hero.svg" class="plain" style="max-height:400px;">
 
-<div style="font-size:0.5em;">Kristoffer Gr&ouml;nlund &lt;kgronlund@suse.com&gt;</div>
+<div style="font-size:0.5em;">Kristoffer Gr&ouml;nlund &lt;krig@koru.se&gt;</div>
 
 Note:
 About me; Work for SUSE; Storage team on rook
@@ -15,7 +15,7 @@ Ceph &bull; <b>Rook</b> &bull; Kubernetes
 Note:
 
 Going to talk about three different things: Ceph, Rook and Kubernetes.
-Anyone unfamiliar with all of these? Won't be able to dig deep.
+Anyone unfamiliar with all of these? Won't be able to dig too deep.
 
 ---
 
@@ -36,7 +36,7 @@ Cons: More complexity to handle.
 
 &nbsp;
 
-* Open source
+* Open source (LGPL)
 * Distributed
 * Massively scalable
 * Self healing
@@ -54,17 +54,63 @@ Ceph
 
 ---
 
-<img src="img/ses.png" class="plain" style="max-height:550px;">
+# One cluster, many interfaces
 
-Note:
-
-# Flexible API options
-* Object (`radosgw`)
+* Object
   * REST
-  * S3
-  * SWIFT
-* Block (`rbd`)
-* File (`cephfs`)
+  * S3, Swift
+* Block
+  * Mount as raw device
+* File
+  * POSIX file system
+* librados
+  * C, C++, Java, Python, Ruby, PHP
+
+---
+
+# RADOS
+
+> Reliable Autonomic Distributed Object Store
+
+Object store cluster made up of intelligent, self-managing
+storage nodes and monitors.
+
+---
+
+# CRUSH
+
+Algorithm used by both clients and the cluster to map
+data objects to storage locations.
+
+---
+
+# OSD
+
+Storage daemons, one per disk (SSD, HDD, NVMe).
+Serves data to clients, handles peer to peer replication & recovery.
+
+# MON
+
+Monitor daemons maintain shared state and consensus.
+Typically 3 - 5 per cluster.
+
+---
+
+# MGR
+
+Manager daemons runs cluster services like the dashboard.
+
+# MDS
+
+MDS daemons handle file system metadata.
+
+# RGW
+
+RADOS Gateways provide REST APIs (S3, Swift, etc.)
+
+---
+
+<img src="img/ses.png" class="plain" style="max-height:550px;">
 
 ---
 
@@ -72,15 +118,53 @@ Note:
 
 <img src="img/ceph-architecture.png" class="plain" style="max-height:500px;">
 
+---
+
+<img src="img/crush.png" class="plain" style="max-height:550px;">
+
 Note:
 
-Architecture:
-  * CRUSH algorithm - automatic balancing
-  * OSD: Manages a single device
-  * MON: Communication coordinators
-  * MDS: Metadata for the file systems
-  * RGW: RADOS Gateway, REST / S3 / ...
-  * MGR: Manager, dashboards
+CRUSH algorithm, the secret sauce of Ceph.
+
+The CRUSH map is basically a hash function,
+which allows clients to independently figure
+out where the data they are looking for is
+located without going through a directory
+service.
+
+---
+
+# Why not a directory?
+
+* Two stage lookup is slow
+* Scalability
+* Directory has to stay in sync
+
+---
+
+# Single step placement
+
+* Hash the data directly to a location
+* What happens when servers are added or removed?
+
+---
+
+# Two step placement
+
+* Hash object to placement group
+* Map placement group to location
+* Can control number of data locations
+* Can add or remove placement group locations
+
+---
+
+<b>HASH</b>(OBJECT NAME) &#x2192; PG ID
+
+<b>CRUSH</b>(PG ID, TOPOLOGY) &#x2192; [OSD.11, OSD.24, OSD.92]
+
+---
+
+Fast, decentralized, scalable, flexible.
 
 ---
 
@@ -152,6 +236,7 @@ Not going to talk about using databases here.
 Kubernetes designed for stateless services.
 Volume plugins provide interface to storage somewhere else.
 Kubernetes assumes someone else sorts out storage.
+CSI = Container Storage Interface
 
 ---
 
@@ -180,7 +265,7 @@ and the applications. Deployment burden. Who manages this thing?
 Note:
 
 This is where Rook comes in.
-Storage Orchestration Framework.
+Cloud-native Storage Orchestrator.
 Extends Kubernetes with new primitives.
 Configures and manages storage provides in Kubernetes,
 and exposes storage to pods.
@@ -202,7 +287,23 @@ and exposes storage to pods.
 Note:
 Rook is a framework for multiple storage systems.
 Ceph and EdgeFS are stable, the rest are either
-in beta or alpha state as of rook 1.2. 
+in beta or alpha state as of rook 1.2.
+
+---
+
+# Automation
+
+* Deployment
+* Configuration
+* Scaling
+* Upgrading
+* Migration
+* Disaster Recovery
+* ...
+
+Note:
+
+Rook turns storage software into self-managing, self-scaling, and self-healing storage services. It does this by automating deployment, bootstrapping, configuration, provisioning, scaling, upgrading, migration, disaster recovery, monitoring, and resource management. Rook uses the facilities provided by the underlying cloud-native container management, scheduling and orchestration platform to perform its duties.
 
 ---
 
@@ -299,10 +400,56 @@ Exposes storage to pods.
 
 ---
 
+# Prerequisites
+
+&#10003; Kubernetes cluster (v1.12+)
+
+&nbsp;
+
+### One of the following:
+
+* Raw devices (no partitions or filesystems)
+* Raw partitions (no filesystem)
+* Available PVs from storage class in `block` mode
+
+---
+
 ### Try it out
 
 <asciinema-player id="terminal-player" src="/js/ceph.cast" cols="61" rows="18"
 theme="monokai" font-size="big"></asciinema-player>
+
+Note:
+
+I'll show the steps to setting up a cluster,
+then go through them in more detail.
+Rook comes with example yaml files for
+creating ceph clusters.
+
+---
+
+`kubectl create -f common.yaml`
+
+`kubectl create -f operator.yaml`
+
+<br>
+
+* Create common resources for rook
+  * Edit to deploy in different k8s namespace
+* Create Rook operator
+  * Options include log level, feature flags
+* Helm chart
+
+---
+
+`kubectl create -f cluster.yaml`
+
+<br>
+
+* Which nodes/devices to use (default: all nodes, all devices)
+* How many mons, mgrs, gateways to deploy
+* Deploy prometheus for monitoring
+* Ceph version to deploy
 
 ---
 
@@ -349,6 +496,43 @@ kubectl -n rook-ceph get pod -l app=rook-ceph-rgw
 
 ---
 
+### Dashboard
+
+```
+ spec:
+    dashboard:
+      enabled: true
+```
+
+<hr>
+
+```
+kubectl -n rook-ceph get service
+NAME                         TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)          AGE
+rook-ceph-mgr                ClusterIP   10.108.111.192   <none>        9283/TCP         3h
+rook-ceph-mgr-dashboard      ClusterIP   10.110.113.240   <none>        8443/TCP         3h
+```
+
+---
+
+### Toolbox
+
+```
+kubectl create -f toolbox.yaml
+kubectl -n rook-ceph exec -it \
+    $(kubectl -n rook-ceph get pod \
+      -l "app=rook-ceph-tools" \
+      -o jsonpath='{.items[0].metadata.name}') \
+    bash
+# ceph status
+```
+
+Note:
+
+The Rook toolbox is a container with common tools used for rook debugging and testing.
+
+---
+
 rook.io
 
 Note:
@@ -369,7 +553,7 @@ there really isn't anything else that compares.
 Provides Storage within Kubernetes. Consistent interface wherever Kubernetes
 runs, different cloud providers, on premise, etc.
 
-Version 1.2.1 released recently. Ceph backend most mature.
+Version 1.2.7 released recently. Ceph backend most mature.
 Ceph itself is proven technology, running in production since 2012.
 
 Avoid lock-in, gain scalability, flexibility.
@@ -383,9 +567,9 @@ Avoid lock-in, gain scalability, flexibility.
 <hr>
 
 * SUSE Storage 6
-  * Technology Preview (feedback welcome)
+  * Technology Preview
 * SUSE Storage 7
-  * Rook on CaaSP as supported stack
+  * Full support
 
 Note:
 
