@@ -221,22 +221,45 @@ CRD = An interface for extending Kubernetes with new types.
 
 ---
 
-# Kubernetes Storage Story
+# K8S Storage Story Evolution
 
 1. Volume Plugins
 
-2. FlexVolume *
+2. FlexVolume
 
-3. CSI *
+3. CSI
+
+4. (LVS)
 
 Note:
 
 how does storage work in Kubernetes? How can services access and store data?
 Not going to talk about using databases here.
-Kubernetes designed for stateless services.
+Kubernetes originally designed for stateless services.
+Modelled on Googles Borg - at Google, storage provided
+by proprietary tech.
 Volume plugins provide interface to storage somewhere else.
 Kubernetes assumes someone else sorts out storage.
 CSI = Container Storage Interface
+LVS = Local Volume Static Provisioner - possible future development for rook (k8s 1.14)
+
+---
+
+<img src="/img/hightower.png" class="plain" style="max-height:600px;">
+
+Note:
+
+This is not a Kubernetes talk. If that's what you need,
+I recommend looking up Kelsey Hightower on Youtube. Any
+of his presentations, really.
+
+First question in this talk:
+When is Kubernetes not appropriate?
+His answer is exactly what I talked about just now.
+Kubernetes is designed for stateless services. He says,
+don't put your database in Kubernetes. It's no good.
+So, maybe something to keep in mind when thinking about
+this stuff.
 
 ---
 
@@ -252,6 +275,7 @@ CSI = Container Storage Interface
 * Administration
 
 Note:
+So what's the alternative?
 You might say just use EBS or whatever storage the cloud vendor provides.
 There are some issues with that though.
 A big one (surprisingly) is cost.
@@ -453,6 +477,16 @@ creating ceph clusters.
 
 ---
 
+```sh
+# Create an object store
+kubectl create -f object.yaml
+
+# To confirm the object store is configured, wait for the rgw pod to start
+kubectl -n rook-ceph get pod -l app=rook-ceph-rgw
+```
+
+---
+
 <pre class="stretch">
 <code data-trim class="hljs yaml">
 # cat object.yaml
@@ -482,17 +516,7 @@ spec:
 </pre>
 
 Note:
-Create an object store
-
----
-
-```sh
-# Create the object store
-kubectl create -f object.yaml
-
-# To confirm the object store is configured, wait for the rgw pod to start
-kubectl -n rook-ceph get pod -l app=rook-ceph-rgw
-```
+Create an S3 object store
 
 ---
 
