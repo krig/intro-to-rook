@@ -34,7 +34,7 @@
     "grunt-contrib-uglify": "^4.0.1",
     "grunt-contrib-watch": "^1.1.0",
     "grunt-retire": "~1.0.9",
-    "grunt-sass": "~1.2.0",
+    "grunt-sass": "~4.0.0",
     "grunt-zip": "~1.0.0",
     "mustache": "~2.2.1",
     "node-sass": "~7.0.0",
@@ -42,6 +42,6 @@
   },
   "license": "MIT",
   "dependencies": {
-    "npm": "^8.19.3"
+    "npm": "^11.4.2"
   }
 }
